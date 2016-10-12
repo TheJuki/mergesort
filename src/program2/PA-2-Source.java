@@ -61,14 +61,20 @@ class Program2 {
         list8 = fillRandomInts(8);
         list9 = fillRandomInts(9);
 
-        System.out.print("\nMergesort Algorithm\n");
-        
+        // Sort each list
         sortedList1 = Mergesort(list1.clone());
+        sortedList2 = Mergesort(list2.clone());
+        sortedList3 = Mergesort(list3.clone());
+        sortedList4 = Mergesort(list4.clone());
+        sortedList5 = Mergesort(list5.clone());
+        sortedList6 = Mergesort(list6.clone());
+        sortedList7 = Mergesort(list7.clone());
+        sortedList8 = Mergesort(list8.clone());
+        sortedList9 = Mergesort(list9.clone());
 
-        displayList(list1);
-        System.out.print("\nMergesort Algorithm\n");
-        displayList(sortedList1);
-       // System.out.print("\nMerged size: " + sortedList1.length +"\n");
+        // TODO GUI
+
+        // TODO Excel
 
     }
 
@@ -143,6 +149,7 @@ class Program2 {
             }
         }
 
+        // Copy any remaining items
         if(list1Index != list1.length)
         {
             while(mergedListIndex < mergedList.length && list1Index < list1.length)
