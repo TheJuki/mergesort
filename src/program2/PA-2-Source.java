@@ -25,56 +25,107 @@ class Program2 {
     // Min array size
     private static final int MIN_ARRAY_SIZE = 1000;
 
-    // All 9 Unsorted Lists
-    private static Integer[] list1;
-    private static Integer[] list2;
-    private static Integer[] list3;
-    private static Integer[] list4;
-    private static Integer[] list5;
-    private static Integer[] list6;
-    private static Integer[] list7;
-    private static Integer[] list8;
-    private static Integer[] list9;
+    // The Merge Sort Table Row Class
+    private static class MergeSortTableRow
+    {
+        // Array size (n)
+        int n;
 
-    // All 9 Sorted Lists
-    private static Integer[] sortedList1;
-    private static Integer[] sortedList2;
-    private static Integer[] sortedList3;
-    private static Integer[] sortedList4;
-    private static Integer[] sortedList5;
-    private static Integer[] sortedList6;
-    private static Integer[] sortedList7;
-    private static Integer[] sortedList8;
-    private static Integer[] sortedList9;
+        // Unsorted list
+        private Integer[] unsortedList;
+
+        // Sorted List after a Mergesort
+        private Integer[] sortedList;
+
+        // Time spent on Mergesort
+        private double timeSpent;
+
+        public MergeSortTableRow() {}
+
+        public MergeSortTableRow(Integer[] unsortedList) {
+            this.unsortedList = unsortedList;
+
+            if(unsortedList != null)
+            {
+                n = unsortedList.length;
+            }
+        }
+
+        Object[] getRowAsArray()
+        {
+            return new Object[] {n, getNLogN(), timeSpent, getNLogNDividedByTime()};
+        }
+
+        // Value of n * log n
+        public double getNLogN()
+        {
+            return n * Math.log(n);
+        }
+
+        // Value of (n * log n) / timeSpent
+        public double getNLogNDividedByTime()
+        {
+            return (n * Math.log(n)) / timeSpent;
+        }
+
+        public Integer[] getUnsortedList() {
+            return unsortedList;
+        }
+
+        public void setUnsortedList(Integer[] unsortedList) {
+            this.unsortedList = unsortedList;
+        }
+
+        public Integer[] getSortedList() {
+            return sortedList;
+        }
+
+        public void setSortedList(Integer[] sortedList) {
+            this.sortedList = sortedList;
+        }
+
+        public double getTimeSpent() {
+            return timeSpent;
+        }
+
+        public void setTimeSpent(double timeSpent) {
+            this.timeSpent = timeSpent;
+        }
+    }
 
     // Main
     public static void main(String[] args) {
 
-        // Fill all 9 Lists
-        list1 = fillRandomInts(1);
-        list2 = fillRandomInts(2);
-        list3 = fillRandomInts(3);
-        list4 = fillRandomInts(4);
-        list5 = fillRandomInts(5);
-        list6 = fillRandomInts(6);
-        list7 = fillRandomInts(7);
-        list8 = fillRandomInts(8);
-        list9 = fillRandomInts(9);
+        List<MergeSortTableRow> mergeSortTableRows = new ArrayList<>();
 
-        // Sort each list
-        sortedList1 = Mergesort(list1.clone());
-        sortedList2 = Mergesort(list2.clone());
-        sortedList3 = Mergesort(list3.clone());
-        sortedList4 = Mergesort(list4.clone());
-        sortedList5 = Mergesort(list5.clone());
-        sortedList6 = Mergesort(list6.clone());
-        sortedList7 = Mergesort(list7.clone());
-        sortedList8 = Mergesort(list8.clone());
-        sortedList9 = Mergesort(list9.clone());
+        // Add 9 Merge Sort Table Rows and Fill all 9 Unsorted Lists
+        mergeSortTableRows.add(new MergeSortTableRow(fillRandomInts(1)));
+        mergeSortTableRows.add(new MergeSortTableRow(fillRandomInts(2)));
+        mergeSortTableRows.add(new MergeSortTableRow(fillRandomInts(3)));
+        mergeSortTableRows.add(new MergeSortTableRow(fillRandomInts(4)));
+        mergeSortTableRows.add(new MergeSortTableRow(fillRandomInts(5)));
+        mergeSortTableRows.add(new MergeSortTableRow(fillRandomInts(6)));
+        mergeSortTableRows.add(new MergeSortTableRow(fillRandomInts(7)));
+        mergeSortTableRows.add(new MergeSortTableRow(fillRandomInts(8)));
+        mergeSortTableRows.add(new MergeSortTableRow(fillRandomInts(9)));
+
+        // Sort and store each list
+        mergeSortTableRows.get(0).setSortedList(Mergesort(mergeSortTableRows.get(0).getUnsortedList().clone()));
+        mergeSortTableRows.get(1).setSortedList(Mergesort(mergeSortTableRows.get(1).getUnsortedList().clone()));
+        mergeSortTableRows.get(2).setSortedList(Mergesort(mergeSortTableRows.get(2).getUnsortedList().clone()));
+        mergeSortTableRows.get(3).setSortedList(Mergesort(mergeSortTableRows.get(3).getUnsortedList().clone()));
+        mergeSortTableRows.get(4).setSortedList(Mergesort(mergeSortTableRows.get(4).getUnsortedList().clone()));
+        mergeSortTableRows.get(5).setSortedList(Mergesort(mergeSortTableRows.get(5).getUnsortedList().clone()));
+        mergeSortTableRows.get(6).setSortedList(Mergesort(mergeSortTableRows.get(6).getUnsortedList().clone()));
+        mergeSortTableRows.get(7).setSortedList(Mergesort(mergeSortTableRows.get(7).getUnsortedList().clone()));
+        mergeSortTableRows.get(8).setSortedList(Mergesort(mergeSortTableRows.get(8).getUnsortedList().clone()));
 
         // TODO GUI
 
         // TODO Excel
+
+        displayList(mergeSortTableRows.get(0).getUnsortedList());
+        displayList(mergeSortTableRows.get(0).getSortedList());
 
     }
 
@@ -88,6 +139,10 @@ class Program2 {
         */
 
         System.out.println(Arrays.toString(list));
+
+        JOptionPane.showMessageDialog(null, Arrays.toString(list),
+                "PA-1",
+                JOptionPane.INFORMATION_MESSAGE);
     }
 
     private static Integer[] fillRandomInts(int listNum)
@@ -171,4 +226,96 @@ class Program2 {
 
         return mergedList;
     }
+
+    // Writes the Excel file
+    private static void writeExcelFile(List<MergeSortTableRow> mergeSortTableRows)
+    {
+        // Create new Excel workbook
+        HSSFWorkbook workbook = new HSSFWorkbook();
+
+        // Create sheets
+        HSSFSheet mergeSortSheet = workbook.createSheet("Merge_Sort_Results");
+
+        // Cell style - Adds a thin border around each cell
+        HSSFCellStyle style = workbook.createCellStyle();
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderTop(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+
+        Map<String, Object[]> data = new HashMap<String, Object[]>();
+
+        // Set header rows for results sheets
+        addResultsHeaderRow(style, mergeSortSheet);
+
+        // Gather rows for Original_Euclid_Results
+        for(int i = 0; i < mergeSortTableRows.size(); i++) {
+            data.put(String.valueOf(i + 1), mergeSortTableRows.get(i).getRowAsArray());
+        }
+
+        // Create cells for Original_Euclid_Results
+        createCells(data, style, mergeSortSheet);
+
+        try {
+            // Write Excel file
+            FileOutputStream out =
+                    new FileOutputStream(new File("Mergesort_Time.xls"));
+            workbook.write(out);
+            out.close();
+            System.out.println("\n\nMergesort_Time.xls document created successfully");
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Merge Sorts finished; however, Mergesort_Time.xls creation failed: \n" + e.getMessage(),
+                    "PA-1",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // Create the header row for a Results sheet
+    private static void addResultsHeaderRow(HSSFCellStyle style, HSSFSheet sheet)
+    {
+        //Set Column Widths
+        sheet.setColumnWidth(0, 6000);
+        sheet.setColumnWidth(1, 6000);
+        sheet.setColumnWidth(2, 6000);
+        sheet.setColumnWidth(3, 6000);
+
+        // Create header row
+        Row headerRow = sheet.createRow(0);
+        Cell headerCell = headerRow.createCell(0);
+        headerCell.setCellStyle(style);
+        headerCell.setCellValue("Input size n for Array_i");
+        headerCell = headerRow.createCell(1);
+        headerCell.setCellStyle(style);
+        headerCell.setCellValue("Value of n· logn");
+        headerCell = headerRow.createCell(2);
+        headerCell.setCellStyle(style);
+        headerCell.setCellValue("Time Spent (Milliseconds)");
+        headerCell = headerRow.createCell(3);
+        headerCell.setCellStyle(style);
+        headerCell.setCellValue("Value of (n· logn)/time");
+    }
+
+    // Create each row and cell of a data map
+    private static void createCells(Map<String, Object[]> data, HSSFCellStyle style, HSSFSheet sheet)
+    {
+        Set<String> keyset = data.keySet();
+        int rownum = 1;
+        for (String key : keyset) {
+            Row row = sheet.createRow(rownum++);
+            Object [] objArr = data.get(key);
+            int cellnum = 0;
+            for (Object obj : objArr) {
+                Cell cell = row.createCell(cellnum++);
+                cell.setCellStyle(style);
+                if(obj instanceof Integer)
+                    cell.setCellValue((Integer)obj);
+                else if(obj instanceof String)
+                    cell.setCellValue((String)obj);
+                else if(obj instanceof Double)
+                    cell.setCellValue((Double)obj);
+            }
+        }
+    }
+
 }
