@@ -4,6 +4,7 @@ import org.apache.poi.ddf.EscherColorRef;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.formula.functions.Intercept;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -13,6 +14,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -24,84 +26,87 @@ class Program2 {
     private static final int MIN_ARRAY_SIZE = 1000;
 
     // All 9 Unsorted Lists
-    private static List<Integer> list1 = new ArrayList<>();
-    private static List<Integer> list2 = new ArrayList<>();
-    private static List<Integer> list3 = new ArrayList<>();
-    private static List<Integer> list4 = new ArrayList<>();
-    private static List<Integer> list5 = new ArrayList<>();
-    private static List<Integer> list6 = new ArrayList<>();
-    private static List<Integer> list7 = new ArrayList<>();
-    private static List<Integer> list8 = new ArrayList<>();
-    private static List<Integer> list9 = new ArrayList<>();
+    private static Integer[] list1;
+    private static Integer[] list2;
+    private static Integer[] list3;
+    private static Integer[] list4;
+    private static Integer[] list5;
+    private static Integer[] list6;
+    private static Integer[] list7;
+    private static Integer[] list8;
+    private static Integer[] list9;
 
     // All 9 Sorted Lists
-    private static List<Integer> sortedList1 = new ArrayList<>();
-    private static List<Integer> sortedList2 = new ArrayList<>();
-    private static List<Integer> sortedList3 = new ArrayList<>();
-    private static List<Integer> sortedList4 = new ArrayList<>();
-    private static List<Integer> sortedList5 = new ArrayList<>();
-    private static List<Integer> sortedList6 = new ArrayList<>();
-    private static List<Integer> sortedList7 = new ArrayList<>();
-    private static List<Integer> sortedList8 = new ArrayList<>();
-    private static List<Integer> sortedList9 = new ArrayList<>();
+    private static Integer[] sortedList1;
+    private static Integer[] sortedList2;
+    private static Integer[] sortedList3;
+    private static Integer[] sortedList4;
+    private static Integer[] sortedList5;
+    private static Integer[] sortedList6;
+    private static Integer[] sortedList7;
+    private static Integer[] sortedList8;
+    private static Integer[] sortedList9;
 
     // Main
     public static void main(String[] args) {
 
         // Fill all 9 Lists
-        fillRandomInts(list1, 1);
-        fillRandomInts(list2, 2);
-        fillRandomInts(list3, 3);
-        fillRandomInts(list4, 4);
-        fillRandomInts(list5, 5);
-        fillRandomInts(list6, 6);
-        fillRandomInts(list7, 7);
-        fillRandomInts(list8, 8);
-        fillRandomInts(list9, 9);
+        list1 = fillRandomInts(1);
+        list2 = fillRandomInts(2);
+        list3 = fillRandomInts(3);
+        list4 = fillRandomInts(4);
+        list5 = fillRandomInts(5);
+        list6 = fillRandomInts(6);
+        list7 = fillRandomInts(7);
+        list8 = fillRandomInts(8);
+        list9 = fillRandomInts(9);
 
         System.out.print("\nMergesort Algorithm\n");
-
-        sortedList1 = Mergesort(list1);
+        
+        sortedList1 = Mergesort(list1.clone());
 
         displayList(list1);
         System.out.print("\nMergesort Algorithm\n");
         displayList(sortedList1);
-       // System.out.print("\nMerged size: " + sortedList1.size() +"\n");
+       // System.out.print("\nMerged size: " + sortedList1.length +"\n");
 
     }
 
-    private static void displayList(List<Integer> list)
+    private static void displayList(Integer[] list)
     {
+        /*
         for (int i : list)
         {
             System.out.print(i + "\n");
         }
+        */
+
+        System.out.println(Arrays.toString(list));
     }
 
-    private static void fillRandomInts(List<Integer> list, int listNum)
+    private static Integer[] fillRandomInts(int listNum)
     {
+        Integer[] list = new Integer[MIN_ARRAY_SIZE * listNum];
+                
         // Generate the random integers to add to the list
         for(int i = 0; i < MIN_ARRAY_SIZE * listNum; i++)
         {
-            list.add((int)(Math.random()*1000 + 1));
+            list[i] = ((int)(Math.random()*1000 + 1));
         }
+        
+        return list;
     }
 
     // Mergesort method
-    private static List<Integer> Mergesort(List<Integer> list)
+    private static Integer[] Mergesort(Integer[] list)
     {
-
-        // If list is null or empty then mergesort cannot continue
-        if(list == null || list.size() == 1)
-            return null;
-
         // Step 0 (the base case)
-        if(list.size() == 1)
+        if(list.length <= 1)
             return list;
 
         // Step 1 - Split list to two lists having n/2 items
-        List<Integer> list1 = list.subList(0, ((list.size() / 2) ));
-        List<Integer> list2 = list.subList(list.size() / 2, (list.size()));
+        Integer[] list1 = Arrays.copyOfRange(list, 0, list.length / 2);
+        Integer[] list2 = Arrays.copyOfRange(list, list.length / 2, list.length);
 
         // Step 2-1 (recursive call)
         Mergesort(list1);
@@ -110,61 +115,48 @@ class Program2 {
         Mergesort(list2);
 
         // Step 3 (final output)
-        return Merge(list1, list2);
+        return Merge(list1, list2, list);
     }
 
     // Merge two sorted lists
-    private static List<Integer> Merge(List<Integer> list1, List<Integer> list2)
+    private static Integer[] Merge(Integer[] list1, Integer[] list2, Integer[] mergedList)
     {
-        // If lists are null then merge cannot continue
-        if(list1 == null || list2 == null || list1.size() == 0 || list2.size() == 0)
-            return null;
-
-        // Size of the merged list
-        int size = list1.size() + list2.size();
-
-        // Merged list
-        List<Integer> mergedList = new ArrayList<>();
-
-        // Fill list
-        while(mergedList.size() < size) mergedList.add(0);
 
         int mergedListIndex = 0;
         int list1Index = 0;
         int list2Index = 0;
 
-        while (mergedListIndex < size &&
-                list1Index < list1.size() &&
-                list2Index < list2.size())
+        while (list1Index < list1.length &&
+                list2Index < list2.length)
         {
-            if(list1.get(list1Index) < list2.get(list2Index))
+            if(list1[list1Index].compareTo(list2[list2Index]) < 0)
             {
-                mergedList.set(mergedListIndex, list1.get(list1Index));
+                mergedList[mergedListIndex] = list1[list1Index];
                 list1Index = list1Index + 1;
                 mergedListIndex = mergedListIndex + 1;
             }
             else
             {
-                mergedList.set(mergedListIndex, list2.get(list2Index));
+                mergedList[mergedListIndex] = list2[list2Index];
                 list2Index = list2Index + 1;
                 mergedListIndex = mergedListIndex + 1;
             }
         }
 
-        if(list1Index != list1.size())
+        if(list1Index != list1.length)
         {
-            while(mergedListIndex < size && list1Index < list1.size())
+            while(mergedListIndex < mergedList.length && list1Index < list1.length)
             {
-                mergedList.set(mergedListIndex, list1.get(list1Index));
+                mergedList[mergedListIndex] = list1[list1Index];
                 list1Index = list1Index + 1;
                 mergedListIndex = mergedListIndex + 1;
             }
         }
-        else if(list2Index != list2.size())
+        else if(list2Index != list2.length)
         {
-            while(mergedListIndex < size && list2Index < list2.size())
+            while(mergedListIndex < mergedList.length && list2Index < list2.length)
             {
-                mergedList.set(mergedListIndex, list2.get(list2Index));
+                mergedList[mergedListIndex] =  list2[list2Index];
                 list2Index = list2Index + 1;
                 mergedListIndex = mergedListIndex + 1;
             }
