@@ -1,5 +1,6 @@
 package program2;
 
+import org.apache.poi.ddf.EscherColorRef;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -60,9 +61,21 @@ class Program2 {
 
         System.out.print("\nMergesort Algorithm\n");
 
+        sortedList1 = Mergesort(list1);
 
-        Mergesort(list1);
+        displayList(list1);
+        System.out.print("\nMergesort Algorithm\n");
+        displayList(sortedList1);
+       // System.out.print("\nMerged size: " + sortedList1.size() +"\n");
 
+    }
+
+    private static void displayList(List<Integer> list)
+    {
+        for (int i : list)
+        {
+            System.out.print(i + "\n");
+        }
     }
 
     private static void fillRandomInts(List<Integer> list, int listNum)
@@ -113,27 +126,43 @@ class Program2 {
         // Merged list
         List<Integer> mergedList = new ArrayList<>();
 
+        // Fill list
         while(mergedList.size() < size) mergedList.add(0);
-
-        System.out.print(size + "\nmerged ");
-
-        System.out.print(mergedList.size() + "\n");
 
         int mergedListIndex = 0;
         int list1Index = 0;
         int list2Index = 0;
 
         while (mergedListIndex < size &&
-                list1Index != list1.size() &&
-                list2Index != list2.size())
+                list1Index < list1.size() &&
+                list2Index < list2.size())
         {
-            if(list1.get(list1Index) < list1.get(list2Index))
+            if(list1.get(list1Index) < list2.get(list2Index))
             {
                 mergedList.set(mergedListIndex, list1.get(list1Index));
                 list1Index = list1Index + 1;
                 mergedListIndex = mergedListIndex + 1;
             }
             else
+            {
+                mergedList.set(mergedListIndex, list2.get(list2Index));
+                list2Index = list2Index + 1;
+                mergedListIndex = mergedListIndex + 1;
+            }
+        }
+
+        if(list1Index != list1.size())
+        {
+            while(mergedListIndex < size && list1Index < list1.size())
+            {
+                mergedList.set(mergedListIndex, list1.get(list1Index));
+                list1Index = list1Index + 1;
+                mergedListIndex = mergedListIndex + 1;
+            }
+        }
+        else if(list2Index != list2.size())
+        {
+            while(mergedListIndex < size && list2Index < list2.size())
             {
                 mergedList.set(mergedListIndex, list2.get(list2Index));
                 list2Index = list2Index + 1;
