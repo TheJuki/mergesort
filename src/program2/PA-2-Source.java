@@ -1,22 +1,18 @@
 package program2;
 
-import org.apache.poi.ddf.EscherColorRef;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.formula.functions.Intercept;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
 import javax.swing.*;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.lang.reflect.Array;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 // PA-2-Group-Huang-Kirk-Parten
 
@@ -24,6 +20,9 @@ class Program2 {
 
     // Min array size
     private static final int MIN_ARRAY_SIZE = 1000;
+
+    // Number of arrays
+    private static final int NUM_ARRAYS = 9;
 
     // The Merge Sort Table Row Class
     private static class MergeSortTableRow
@@ -53,7 +52,10 @@ class Program2 {
 
         Object[] getRowAsArray()
         {
-            return new Object[] {n, getNLogN(), timeSpent, getNLogNDividedByTime()};
+            NumberFormat formatter = new DecimalFormat();
+            formatter = new DecimalFormat("0.###E0");
+
+            return new Object[] {n, getNLogN(), timeSpent, formatter.format(getNLogNDividedByTime()).replace("E", " * 10^")};
         }
 
         // Value of n * log n
@@ -99,31 +101,27 @@ class Program2 {
         List<MergeSortTableRow> mergeSortTableRows = new ArrayList<>();
 
         // Add 9 Merge Sort Table Rows and Fill all 9 Unsorted Lists
-        mergeSortTableRows.add(new MergeSortTableRow(fillRandomInts(1)));
-        mergeSortTableRows.add(new MergeSortTableRow(fillRandomInts(2)));
-        mergeSortTableRows.add(new MergeSortTableRow(fillRandomInts(3)));
-        mergeSortTableRows.add(new MergeSortTableRow(fillRandomInts(4)));
-        mergeSortTableRows.add(new MergeSortTableRow(fillRandomInts(5)));
-        mergeSortTableRows.add(new MergeSortTableRow(fillRandomInts(6)));
-        mergeSortTableRows.add(new MergeSortTableRow(fillRandomInts(7)));
-        mergeSortTableRows.add(new MergeSortTableRow(fillRandomInts(8)));
-        mergeSortTableRows.add(new MergeSortTableRow(fillRandomInts(9)));
+        for(int i = 0; i < NUM_ARRAYS; i++) {
+            mergeSortTableRows.add(new MergeSortTableRow(fillRandomInts(i+1)));
+        }
 
-        // Sort and store each list
-        mergeSortTableRows.get(0).setSortedList(Mergesort(mergeSortTableRows.get(0).getUnsortedList().clone()));
-        mergeSortTableRows.get(1).setSortedList(Mergesort(mergeSortTableRows.get(1).getUnsortedList().clone()));
-        mergeSortTableRows.get(2).setSortedList(Mergesort(mergeSortTableRows.get(2).getUnsortedList().clone()));
-        mergeSortTableRows.get(3).setSortedList(Mergesort(mergeSortTableRows.get(3).getUnsortedList().clone()));
-        mergeSortTableRows.get(4).setSortedList(Mergesort(mergeSortTableRows.get(4).getUnsortedList().clone()));
-        mergeSortTableRows.get(5).setSortedList(Mergesort(mergeSortTableRows.get(5).getUnsortedList().clone()));
-        mergeSortTableRows.get(6).setSortedList(Mergesort(mergeSortTableRows.get(6).getUnsortedList().clone()));
-        mergeSortTableRows.get(7).setSortedList(Mergesort(mergeSortTableRows.get(7).getUnsortedList().clone()));
-        mergeSortTableRows.get(8).setSortedList(Mergesort(mergeSortTableRows.get(8).getUnsortedList().clone()));
+        long startTime = 0;
+        long endTime = 0;
+
+        // Sort and store each list with time spent
+        for(int i = 0; i < NUM_ARRAYS; i++) {
+            startTime = System.nanoTime();
+            mergeSortTableRows.get(i).setSortedList(Mergesort(mergeSortTableRows.get(i).getUnsortedList().clone()));
+            endTime = System.nanoTime();
+            mergeSortTableRows.get(i).setTimeSpent((endTime - startTime) / 1000000.0);
+        }
 
         // TODO GUI
 
-        // TODO Excel
+        // Write Excel document
+        writeExcelFile(mergeSortTableRows);
 
+        // DEBUG
         displayList(mergeSortTableRows.get(0).getUnsortedList());
         displayList(mergeSortTableRows.get(0).getSortedList());
 
@@ -139,10 +137,6 @@ class Program2 {
         */
 
         System.out.println(Arrays.toString(list));
-
-        JOptionPane.showMessageDialog(null, Arrays.toString(list),
-                "PA-1",
-                JOptionPane.INFORMATION_MESSAGE);
     }
 
     private static Integer[] fillRandomInts(int listNum)
@@ -152,7 +146,7 @@ class Program2 {
         // Generate the random integers to add to the list
         for(int i = 0; i < MIN_ARRAY_SIZE * listNum; i++)
         {
-            list[i] = ((int)(Math.random()*1000 + 1));
+            list[i] = ((int)(Math.random()*9000 + 1));
         }
         
         return list;
@@ -287,13 +281,13 @@ class Program2 {
         headerCell.setCellValue("Input size n for Array_i");
         headerCell = headerRow.createCell(1);
         headerCell.setCellStyle(style);
-        headerCell.setCellValue("Value of n· logn");
+        headerCell.setCellValue("Value of nlogn");
         headerCell = headerRow.createCell(2);
         headerCell.setCellStyle(style);
         headerCell.setCellValue("Time Spent (Milliseconds)");
         headerCell = headerRow.createCell(3);
         headerCell.setCellStyle(style);
-        headerCell.setCellValue("Value of (n· logn)/time");
+        headerCell.setCellValue("Value of (nlogn)/time");
     }
 
     // Create each row and cell of a data map
