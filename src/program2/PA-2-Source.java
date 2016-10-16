@@ -8,11 +8,16 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.AbstractTableModel;
+import java.awt.*;
+import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.List;
 
 // PA-2-Group-Huang-Kirk-Parten
 
@@ -116,29 +121,21 @@ class Program2 {
             mergeSortTableRows.get(i).setTimeSpent((endTime - startTime) / 1000000.0);
         }
 
-        // TODO GUI
-
         // Write Excel document
         writeExcelFile(mergeSortTableRows);
 
-        // DEBUG
-        displayList(mergeSortTableRows.get(0).getUnsortedList());
-        displayList(mergeSortTableRows.get(0).getSortedList());
+        // Display GUI
+        GUI.createAndShowGUI(mergeSortTableRows);
 
     }
 
+    // Print a list to the console
     private static void displayList(Integer[] list)
     {
-        /*
-        for (int i : list)
-        {
-            System.out.print(i + "\n");
-        }
-        */
-
         System.out.println(Arrays.toString(list));
     }
 
+    // Generate random ints to fill an array
     private static Integer[] fillRandomInts(int listNum)
     {
         Integer[] list = new Integer[MIN_ARRAY_SIZE * listNum];
@@ -312,4 +309,232 @@ class Program2 {
         }
     }
 
+    //GUI inherits JFrame
+    public static class GUI extends JFrame {
+
+        // Merge Sort List Class for Combo Box
+        public class MergeSortList
+        {
+            private int index;
+            private String text;
+
+            public MergeSortList(int index)
+            {
+                this.index = index;
+                this.text = "Array " + (index + 1);
+            }
+
+            public int getIndex() {
+                return index;
+            }
+
+            public void setIndex(int index) {
+                this.index = index;
+            }
+
+            public String getText() {
+                return text;
+            }
+
+            public void setText(String text) {
+                this.text = text;
+            }
+
+            @Override
+            public String toString()
+            {
+                return text;
+            }
+        }
+
+        // Table List Model class for GUI table of unsorted/sorted lists
+        public class TableListModel extends AbstractTableModel {
+            private List<String> columnNames = new ArrayList<>();
+            private List<String[]> data = new ArrayList<>();
+
+            public TableListModel(String[] columnNames) {
+                Collections.addAll(this.columnNames, columnNames);
+            }
+
+            public void addRow(String[] row) {
+                data.add(row);
+                fireTableRowsInserted(data.size(), data.size());
+            }
+
+            public void replaceRows(List<MergeSortTableRow> mergeSortTableRows, int list)
+            {
+                if(list < mergeSortTableRows.size()) {
+                    data = new ArrayList<>();
+
+                    MergeSortTableRow mergeSortTableRow = mergeSortTableRows.get(list);
+
+                    if(mergeSortTableRow.getUnsortedList().length == mergeSortTableRow.getSortedList().length) {
+
+                        for (int i = 0; i < mergeSortTableRow.getUnsortedList().length; i++) {
+
+                            data.add(new String[]{String.valueOf(mergeSortTableRow.getUnsortedList()[i]),
+                                    String.valueOf(mergeSortTableRow.getSortedList()[i])});
+                        }
+
+                        fireTableDataChanged();
+                    }
+                }
+            }
+
+            public void deleteRow(int rowIndex) {
+                data.remove(rowIndex);
+                fireTableRowsDeleted(data.size(), data.size());
+            }
+
+            @Override
+            public void setValueAt(Object value, int row, int col) {
+                data.get(row)[col] = (String) value;
+                fireTableCellUpdated(row, col);
+            }
+
+            @Override
+            public String getColumnName(int index) {
+                return columnNames.get(index);
+            }
+
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
+
+            @Override
+            public int getRowCount() {
+                return data.size();
+            }
+
+            @Override
+            public int getColumnCount() {
+                return columnNames.size();
+            }
+
+            @Override
+            public Object getValueAt(int rowIndex, int columnIndex) {
+                return data.get(rowIndex)[columnIndex];
+            }
+        }
+
+        //serialVersionUID
+        private static final long serialVersionUID = 1L;
+        //windowLayout
+        private FlowLayout windowLayout = new FlowLayout();
+
+        // Passwords table
+        private final JTable listTable;
+
+        // List Buttons
+        JComboBox<MergeSortList> listsComboxBox = new JComboBox<>();
+
+        List<MergeSortTableRow> mergeSortTableRows = new ArrayList<>();
+
+        // Constructor for GUI
+        private GUI(String name, List<MergeSortTableRow> mergeSortTableRows) {
+            //Inherits name from JFrame
+            super(name);
+
+            this.mergeSortTableRows = mergeSortTableRows;
+
+            // List Table
+            listTable = new JTable() {
+                private static final long serialVersionUID = 1L;
+
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                };
+            };
+
+            listTable.setModel(new TableListModel(new String[]{"Unsorted", "Sorted"}));
+            listTable.setFillsViewportHeight(true);
+
+        }
+
+        //Add components to Container pane
+        private void addComponentsToPane(final Container pane) {
+
+            final JPanel comboboxPanel = new JPanel();
+            comboboxPanel.setLayout(windowLayout);
+            comboboxPanel.setBorder(new TitledBorder(""));
+
+            // Add table to scroll pane
+            JScrollPane tablePane = new JScrollPane(listTable);
+            JPanel tableListPage = new JPanel();
+            tableListPage.add(tablePane);
+
+            // Count
+            JLabel itemsCount = new JLabel(mergeSortTableRows.get(0).getSortedList().length + " Items");
+
+            // Add Lists to Combo box
+            for(int i = 0; i < NUM_ARRAYS; i++)
+            {
+                listsComboxBox.addItem(new MergeSortList(i));
+            }
+
+            // Combox box - on change
+            listsComboxBox.addItemListener(event -> {
+                if (event.getStateChange() == ItemEvent.SELECTED) {
+                    MergeSortList item = (MergeSortList) event.getItem();
+                    if(item.getIndex() < mergeSortTableRows.size()) {
+                        ((TableListModel) listTable.getModel()).replaceRows(mergeSortTableRows, item.getIndex());
+                        itemsCount.setText(mergeSortTableRows.get(item.getIndex()).getSortedList().length + " Items");
+                        javax.swing.SwingUtilities.invokeLater(() -> tablePane.getVerticalScrollBar().setValue(0));
+                    }
+                }
+            });
+
+            // Add Combo box to panel
+            comboboxPanel.add(listsComboxBox);
+            comboboxPanel.add(itemsCount);
+
+            // Add quit button
+            JButton quitButton = new JButton("Quit");
+            quitButton.setFocusPainted(false);
+
+            //actions JPanel
+            final JPanel actions = new JPanel();
+            actions.setLayout(windowLayout);
+            actions.setBorder(new TitledBorder(""));
+            actions.add(quitButton);
+
+            //Add sections / JPanels to main pane
+            pane.add(comboboxPanel, BorderLayout.NORTH);
+            pane.add(tableListPage, BorderLayout.CENTER);
+            pane.add(actions, BorderLayout.SOUTH);
+
+            //Quit button
+            quitButton.addActionListener(e -> System.exit(0));
+
+            // Start with List 1
+            ((TableListModel) listTable.getModel()).replaceRows(mergeSortTableRows, 0);
+        }
+
+        static void createAndShowGUI(List<MergeSortTableRow> mergeSortTableRows) {
+            //Create and set up a new GUI
+            GUI frame = new GUI("PA-2 Mergesort", mergeSortTableRows);
+
+            //Exit on close
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+            //Set up the content pane.
+            frame.addComponentsToPane(frame.getContentPane());
+            //Display the window.
+            frame.pack();
+            //Set location
+            frame.setLocationRelativeTo(null);
+
+            //Show the GUI
+            frame.setSize(500, 550);
+            frame.setVisible(true);
+            frame.setResizable(false);
+
+        } // createAndShowGUI
+
+
+    } // End GUI
+
 }
+
+
